@@ -7,7 +7,7 @@ const MyProfile = () => {
     image: assets.profile_pic,
     email: "devanshrajput@example.com",
     phone: "+1 234 567 890",
-    adress: {
+    address: {
       line1: "123 Main St",
       line2: "Apt 4B, London",
     },
@@ -57,11 +57,11 @@ const MyProfile = () => {
               <input
                 className="bg-gray-50"
                 type="text"
-                value={userData.adress.line1}
+                value={userData.address.line1}
                 onChange={(e) =>
                   setUserData({
                     ...userData,
-                    adress: { ...userData.adress, line1: e.target.value },
+                    address: { ...userData.address, line1: e.target.value },
                   })
                 }
               />
@@ -69,18 +69,18 @@ const MyProfile = () => {
               <input
                 className="bg-gray-50"
                 type="text"
-                value={userData.adress.line2}
+                value={userData.address.line2}
                 onChange={(e) =>
                   setUserData({
                     ...userData,
-                    adress: { ...userData.adress, line2: e.target.value },
+                    address: { ...userData.address, line2: e.target.value },
                   })
                 }
               />
             </p>
           ) : (
             <p className="text-gray-500">
-              {userData.adress.line1} <br /> {userData.adress.line2}
+              {userData.address.line1} <br /> {userData.address.line2}
             </p>
           )}
         </div>
