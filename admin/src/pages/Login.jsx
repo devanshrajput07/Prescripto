@@ -45,6 +45,7 @@ const Login = () => {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
         </div>
         <div className="w-full">
@@ -56,6 +57,7 @@ const Login = () => {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
         </div>
         <button className="bg-primary text-white w-full py-2 rounded-md text-base">

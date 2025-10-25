@@ -6,11 +6,11 @@ import jwt from "jsonwebtoken";
 
 const addDoctor = async (req, res) => {
     try {
-        const { name, email, password, specialty, degree, experience, about, fees, address } = req.body;
+        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
         const imageFile = req.file;
 
         // Validate required fields
-        if (!name || !email || !password || !specialty || !degree || !experience || !about || !fees || !address) {
+        if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
@@ -41,7 +41,7 @@ const addDoctor = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            specialty,
+            speciality,
             degree,
             experience,
             about,
