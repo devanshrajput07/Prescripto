@@ -126,6 +126,7 @@ const AddDoctor = () => {
                 className="border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 type="email"
                 placeholder="Email"
+                autoComplete="email"
                 required
               />
             </div>

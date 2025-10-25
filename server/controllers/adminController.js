@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 
+// Add Doctor Controller
 const addDoctor = async (req, res) => {
     try {
         const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
@@ -59,6 +60,7 @@ const addDoctor = async (req, res) => {
     }
 };
 
+// Admin Login Controller
 const loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -77,4 +79,14 @@ const loginAdmin = async (req, res) => {
     }
 };
 
-export { addDoctor, loginAdmin };
+// Get All Doctors
+const getAllDoctors = async (req, res) => {
+    try {
+        const doctors = await doctorModel.find({}).select("-password -__v");
+        return res.status(200).json({ success: true, doctors });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export { addDoctor, loginAdmin, getAllDoctors };
