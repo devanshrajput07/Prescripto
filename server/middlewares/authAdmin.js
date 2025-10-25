@@ -9,12 +9,13 @@ const authAdmin = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(atoken, process.env.JWT_SECRET);
-    if (decoded !== process.env.ADMIN_EMAIL + process.env.ADMIN_PASSWORD) {
+    if (decoded.email !== process.env.ADMIN_EMAIL) {
       return res.status(401).json({ success: false, message: "Unauthorized access" });
     }
     next();
   } catch (error) {
-    return res.status(401).json({ success: false, message: "Unauthorized access" });
+        console.error('Auth error:', error.message);
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
   }
 };
 
