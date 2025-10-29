@@ -251,6 +251,30 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
+// Appointment Payment
+const paymentMethod = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
+    if (!appointmentData || !appointmentData.cancelled) {
+      return res.status(404).json({
+        success: false,
+        message: "Appointment cancelled or not found",
+      });
+    }
+
+    await appointmentModel.findByIdAndUpdate(appointmentId, {
+      payment: true,
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Payment Successful" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export {
   registerUser,
   loginUser,
@@ -259,4 +283,5 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
+  paymentMethod,
 };

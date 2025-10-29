@@ -30,6 +30,7 @@ const AppContextProvider = (props) => {
 
   const loadUserProfileData = async () => {
     try {
+      if (!token) return;
       const { data } = await axios.get(backendUrl + "/api/user/get-profile", {
         headers: { token },
       });
@@ -40,6 +41,9 @@ const AppContextProvider = (props) => {
       }
     } catch (error) {
       toast.error(error.message);
+      setUserData(null);
+      setToken("");
+      localStorage.removeItem("token");
     }
   };
 
@@ -52,7 +56,7 @@ const AppContextProvider = (props) => {
     userData,
     setUserData,
     loadUserProfileData,
-    getDoctorData
+    getDoctorData,
   };
 
   useEffect(() => {

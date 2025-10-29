@@ -7,7 +7,7 @@ const MyAppointments = () => {
   const { token, backendUrl, getDoctorData } = useContext(AppContext);
 
   const [appointments, setAppointments] = useState([]);
-  const months = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const slotDateFormat = (slotDate) => {
     const dateArray = slotDate.split("_");
@@ -40,6 +40,22 @@ const MyAppointments = () => {
         toast.success(data.message);
         getUserAppointments();
         getDoctorData();
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const handlePayment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/user/payment-method",
+        { appointmentId },
+        { headers: { token } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getUserAppointments();
       }
     } catch (error) {
       toast.error(error.message);
@@ -92,12 +108,22 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
-              {!item.cancelled && (
-                <button className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300">
+              {!item.cancelled && item.payment && (
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 cursor-not-allowed">
+                  Appointment Confirmed
+                </button>
+              )}
+              {!item.cancelled && !item.payment && (
+                <button
+                  onClick={() => {
+                    handlePayment(item._id);
+                  }}
+                  className="text-sm text-stone-500 text-center sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300"
+                >
                   Pay Online
                 </button>
               )}
-              {!item.cancelled && (
+              {!item.cancelled && !item.payment && (
                 <button
                   onClick={() => {
                     cancelAppointment(item._id);
