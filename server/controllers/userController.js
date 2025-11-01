@@ -256,7 +256,7 @@ const paymentMethod = async (req, res) => {
   try {
     const { appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
-    if (!appointmentData || !appointmentData.cancelled) {
+    if (!appointmentData || appointmentData.cancelled) {
       return res.status(404).json({
         success: false,
         message: "Appointment cancelled or not found",

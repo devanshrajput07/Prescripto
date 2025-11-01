@@ -7,7 +7,21 @@ const MyAppointments = () => {
   const { token, backendUrl, getDoctorData } = useContext(AppContext);
 
   const [appointments, setAppointments] = useState([]);
-  const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const slotDateFormat = (slotDate) => {
     const dateArray = slotDate.split("_");
@@ -108,12 +122,12 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className="flex flex-col gap-2 justify-end">
-              {!item.cancelled && item.payment && (
-                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 cursor-not-allowed">
-                  Appointment Confirmed
+              {!item.cancelled && item.payment && !item.isCompleted && (
+                <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500 cursor-not-allowed">
+                  Paid
                 </button>
               )}
-              {!item.cancelled && !item.payment && (
+              {!item.cancelled && !item.payment && !item.isCompleted && (
                 <button
                   onClick={() => {
                     handlePayment(item._id);
@@ -123,7 +137,7 @@ const MyAppointments = () => {
                   Pay Online
                 </button>
               )}
-              {!item.cancelled && !item.payment && (
+              {!item.cancelled && !item.payment && !item.isCompleted && (
                 <button
                   onClick={() => {
                     cancelAppointment(item._id);
@@ -133,9 +147,14 @@ const MyAppointments = () => {
                   Cancel appointment
                 </button>
               )}
-              {item.cancelled && (
+              {item.cancelled && !item.isCompleted && (
                 <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500 cursor-not-allowed">
                   Appointment Cancelled
+                </button>
+              )}
+              {item.isCompleted && (
+                <button className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 cursor-not-allowed">
+                  Appointment Completed
                 </button>
               )}
             </div>

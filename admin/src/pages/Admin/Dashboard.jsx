@@ -4,7 +4,8 @@ import { assets } from "../../assets/assets_admin/assets.js";
 import { AppContext } from "../../context/AppContext";
 
 const Dashboard = () => {
-  const { aToken, getDashboardData, cancelAppointment, dashData } = useContext(AdminContext);
+  const { aToken, getDashboardData, cancelAppointment, dashData } =
+    useContext(AdminContext);
   const { slotDateFormat } = useContext(AppContext);
 
   useEffect(() => {
@@ -74,6 +75,10 @@ const Dashboard = () => {
                 </div>
                 {item.cancelled ? (
                   <p className="text-red-400 text-xs font-medium">Cancelled</p>
+                ) : item.isCompleted ? (
+                  <p className="text-green-400 text-xs font-medium">
+                    Completed
+                  </p>
                 ) : (
                   <img
                     onClick={() => cancelAppointment(item._id)}
