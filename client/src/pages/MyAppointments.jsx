@@ -63,13 +63,14 @@ const MyAppointments = () => {
   const handlePayment = async (appointmentId) => {
     try {
       const { data } = await axios.post(
-        backendUrl + "/api/user/payment-method",
+        backendUrl + "/api/user/payment-stripe",
         { appointmentId },
         { headers: { token } }
       );
       if (data.success) {
-        toast.success(data.message);
-        getUserAppointments();
+        window.location.replace(data.session_url);
+      } else {
+        toast.error(data.message);
       }
     } catch (error) {
       toast.error(error.message);

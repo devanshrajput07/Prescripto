@@ -5,6 +5,9 @@ import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import appointmentModel from "../models/appointmentModel.js";
 import doctorModel from "../models/doctorModel.js";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // User Registration
 const registerUser = async (req, res) => {
@@ -49,7 +52,7 @@ const registerUser = async (req, res) => {
 
     // Generate JWT Token
     const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "7d",
     });
 
     return res
@@ -81,7 +84,7 @@ const loginUser = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (isMatch) {
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "7d",
       });
       return res
         .status(200)
@@ -230,6 +233,10 @@ const cancelAppointment = async (req, res) => {
         .json({ success: false, message: "Unauthorized action" });
     }
 
+    if (appointmentData.cancelled) {
+      return res.status(400).json({ success: false, message: "Appointment already cancelled" });
+    }
+
     await appointmentModel.findByIdAndUpdate(appointmentId, {
       cancelled: true,
     });
@@ -251,29 +258,79 @@ const cancelAppointment = async (req, res) => {
   }
 };
 
-// Appointment Payment
-const paymentMethod = async (req, res) => {
+// Payment via Stripe
+const paymentStripe = async (req, res) => {
   try {
     const { appointmentId } = req.body;
+    const origin = req.headers.origin || 'http://localhost:5173';
+
     const appointmentData = await appointmentModel.findById(appointmentId);
-    if (!appointmentData || appointmentData.cancelled) {
-      return res.status(404).json({
-        success: false,
-        message: "Appointment cancelled or not found",
-      });
+
+    if (!appointmentData || appointmentData.cancelled || appointmentData.payment) {
+      return res.status(404).json({ success: false, message: 'Appointment not found, cancelled, or already paid' });
     }
 
-    await appointmentModel.findByIdAndUpdate(appointmentId, {
-      payment: true,
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card', 'amazon_pay'],
+      line_items: [
+        {
+          price_data: {
+            currency: process.env.CURRENCY || 'inr',
+            product_data: {
+              name: `Appointment with Dr. ${appointmentData.docData.name}`,
+            },
+            unit_amount: appointmentData.amount * 100, // Stripe expects the smallest unit (paise)
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${origin}/verify?success=true&sessionId={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/verify?success=false&sessionId={CHECKOUT_SESSION_ID}`,
+      metadata: {
+        appointmentId: appointmentId.toString(),
+      }
     });
 
-    return res
-      .status(200)
-      .json({ success: true, message: "Payment Successful" });
+    res.json({ success: true, session_url: session.url });
+
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Verify Stripe payment
+const verifyStripe = async (req, res) => {
+  try {
+    const { sessionId, success } = req.body;
+
+    if (success === "true") {
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      if (session.payment_status === "paid") {
+        const appointmentId = session.metadata.appointmentId;
+        await appointmentModel.findByIdAndUpdate(appointmentId, {
+          payment: true,
+          paymentDetails: {
+            stripeSessionId: session.id,
+            amount_total: session.amount_total,
+            currency: session.currency,
+            customer_details: session.customer_details
+          }
+        });
+        return res.json({ success: true, message: "Payment Successful" });
+      } else {
+        return res.json({ success: false, message: "Payment Not Completed" });
+      }
+    } else {
+      return res.json({ success: false, message: "Payment Failed" });
+    }
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
 
 export {
   registerUser,
@@ -283,5 +340,6 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
-  paymentMethod,
+  paymentStripe,
+  verifyStripe
 };

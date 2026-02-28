@@ -69,12 +69,14 @@ const DoctorAppointments = () => {
                   src={assets.cancel_icon}
                   alt="Cancel"
                 />
-                <img
-                  onClick={() => completeAppointment(item._id)}
-                  className="w-10 cursor-pointer"
-                  src={assets.tick_icon}
-                  alt="Tick"
-                />
+                {item.payment && (
+                  <img
+                    onClick={() => completeAppointment(item._id)}
+                    className="w-10 cursor-pointer"
+                    src={assets.tick_icon}
+                    alt="Tick"
+                  />
+                )}
               </div>
             )}
           </div>

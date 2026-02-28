@@ -69,10 +69,17 @@ const appointmentComplete = async (req, res) => {
   try {
     const docId = req.docId;
     const { appointmentId } = req.body;
-    const appointmentData = await appointmentModel.findByIdAndUpdate(
-      appointmentId
-    );
-    if (appointmentData && appointmentData.docId.toString() === docId) {
+    const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    if (appointmentData.cancelled || appointmentData.isCompleted) {
+      return res.status(400).json({ success: false, message: "Appointment already completed or cancelled" });
+    }
+
+    if (appointmentData.docId.toString() === docId) {
       await appointmentModel.findByIdAndUpdate(appointmentId, {
         isCompleted: true,
       });
@@ -91,10 +98,30 @@ const cancelAppointment = async (req, res) => {
     const docId = req.docId;
     const { appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
-    if (appointmentData && appointmentData.docId.toString() === docId) {
+
+    if (!appointmentData) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    if (appointmentData.cancelled) {
+      return res.status(400).json({ success: false, message: "Appointment already cancelled" });
+    }
+
+    if (appointmentData.docId.toString() === docId) {
       await appointmentModel.findByIdAndUpdate(appointmentId, {
         cancelled: true,
       });
+
+      // release the booked slot
+      const { slotDate, slotTime } = appointmentData;
+      const docData = await doctorModel.findById(docId);
+      let slots_booked = docData.slots_booked;
+
+      slots_booked[slotDate] = slots_booked[slotDate].filter(
+        (slot) => slot !== slotTime
+      );
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
       res.status(200).json({ success: true, message: "Appointment Cancelled" });
     } else {
       res.status(400).json({ success: false, message: "Cancel Failed" });

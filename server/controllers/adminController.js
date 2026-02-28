@@ -148,6 +148,15 @@ const cancelAppointmentAdmin = async (req, res) => {
   try {
     const { appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
+
+    if (!appointmentData) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    if (appointmentData.cancelled) {
+      return res.status(400).json({ success: false, message: "Appointment already cancelled" });
+    }
+
     await appointmentModel.findByIdAndUpdate(appointmentId, {
       cancelled: true,
     });
