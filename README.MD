@@ -5,6 +5,7 @@ Prescripto is a comprehensive web application built with the MERN stack designed
 ## ✨ Features
 
 - 📅 Patients can register and book appointments with doctors through a simple, intuitive interface.
+- � Integrated Stripe Checkout for seamless and secure online payments (Cards, Amazon Pay, UPI, etc., with automatic payment methods).
 - 👩‍⚕️ Doctors have dedicated panels to view, manage appointments, and track earnings efficiently.
 - 🛠️ Admin panel allows adding new doctors, viewing and managing all doctors and appointments, and overseeing platform operations.
 - 🔐 Secure authentication for doctors, patients, and admin users via JWT.
@@ -17,6 +18,7 @@ Prescripto is a comprehensive web application built with the MERN stack designed
 - 🚀 Express.js for backend REST API development and business logic handling.
 - ⚛️ React.js for a responsive and user-friendly frontend interface.
 - 🟢 Node.js runtime environment.
+- 💳 Stripe SDK for secure payment processing.
 - 🔐 JWT-based authentication and role-based authorization.
 
 ## 🚀 Installation
@@ -39,6 +41,7 @@ Prescripto is a comprehensive web application built with the MERN stack designed
    CLOUDINARY_API_KEY=""
    CLOUDINARY_SECRET_KEY=""
    JWT_SECRET=""
+   STRIPE_SECRET_KEY=""
    ```
 
 3. Navigate to both `server` and `client` directories and install dependencies, then run development servers:
